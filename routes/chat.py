@@ -22,7 +22,7 @@ except Exception as e:
 # Initialize Blueprint
 chat_bp = Blueprint('chat', __name__)
 
-@chat_bp.route('/chat', methods=['POST'])
+@chat_bp.route('/', methods=['POST'])
 def chat():
     data = request.json
     user_id = data.get('user_id')
