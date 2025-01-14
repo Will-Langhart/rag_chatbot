@@ -24,15 +24,15 @@ except Exception as e:
 # Initialize Blueprint
 chat_bp = Blueprint('chat', __name__)
 
-# Create and initialize a Pinecone instance
+# Create and initialize a Pinecone client instance
 try:
     pc = Pinecone(
         api_key=os.getenv("PINECONE_API_KEY")
     )
-    module_logger.info("Pinecone instance created successfully.")
+    module_logger.info("Pinecone client initialized successfully.")
 except Exception as e:
     pc = None
-    module_logger.error(f"Failed to initialize Pinecone: {e}")
+    module_logger.error(f"Failed to initialize Pinecone client: {e}")
 
 @chat_bp.route('/', methods=['POST'])
 def chat():
@@ -47,13 +47,13 @@ def chat():
         return jsonify({"error": "User ID and message are required"}), 400
 
     try:
-        # Ensure Pinecone instance is initialized
+        # Ensure Pinecone client is initialized
         if not pc:
-            raise ValueError("Pinecone instance is not initialized. Check API key and configuration.")
+            raise ValueError("Pinecone client is not initialized. Check API key and configuration.")
 
         # Ensure the index exists
         existing_indexes = pc.list_indexes()
-        if "rag-chatbot-index" not in existing_indexes.names():
+        if "rag-chatbot-index" not in [index.name for index in existing_indexes]:
             pc.create_index(
                 name="rag-chatbot-index",
                 dimension=1536,  # Adjust based on your embedding size
