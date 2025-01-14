@@ -12,6 +12,7 @@ import logging
 module_logger = logging.getLogger("chat_module")
 module_logger.setLevel(logging.DEBUG)
 
+# Initialize LangChain rephrase model
 try:
     rephrase_model = pull("langchain-ai/chat-langchain-rephrase", api_key=os.getenv("LANGCHAIN_API_KEY"))
     module_logger.info("LangChain rephrase model loaded successfully.")
@@ -23,9 +24,14 @@ except Exception as e:
 chat_bp = Blueprint('chat', __name__)
 
 # Create a Pinecone instance
-pc = Pinecone(
-    api_key=os.getenv("PINECONE_API_KEY")
-)
+try:
+    pc = Pinecone(
+        api_key=os.getenv("PINECONE_API_KEY")
+    )
+    module_logger.info("Pinecone instance created successfully.")
+except Exception as e:
+    pc = None
+    module_logger.error(f"Failed to initialize Pinecone: {e}")
 
 @chat_bp.route('/', methods=['POST'])
 def chat():
@@ -40,6 +46,10 @@ def chat():
         return jsonify({"error": "User ID and message are required"}), 400
 
     try:
+        # Ensure Pinecone instance is initialized
+        if not pc:
+            raise ValueError("Pinecone instance is not initialized. Check API key and configuration.")
+
         # Ensure the index exists
         if "rag-chatbot-index" not in pc.list_indexes().names():
             pc.create_index(
@@ -47,8 +57,8 @@ def chat():
                 dimension=1536,  # Adjust based on your embedding size
                 metric="cosine",
                 spec=ServerlessSpec(
-                    cloud="aws",  # Update based on your Pinecone setup
-                    region=os.getenv("PINECONE_REGION", "us-west-1")
+                    cloud="aws",  # AWS setup
+                    region=os.getenv("PINECONE_REGION", "us-east-1")
                 ),
             )
             current_app.logger.info("Created Pinecone index 'rag-chatbot-index'.")
