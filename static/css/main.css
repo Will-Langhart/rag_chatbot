@@ -1,88 +1,91 @@
 /* General Reset */
 body {
     margin: 0;
-    font-family: 'Roboto', Arial, sans-serif;
-    background-color: #eef2f7;
+    font-family: 'Poppins', Arial, sans-serif;
+    background: linear-gradient(135deg, #e3f2fd, #ffffff);
     color: #333;
     line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
 /* Chatbot Container */
 #chatbot-container {
-    width: 90%;
-    max-width: 600px;
-    margin: 50px auto;
-    background: linear-gradient(135deg, #ffffff, #f9f9f9);
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    width: 40%;
+    min-width: 480px;
+    max-width: 700px;
+    margin: auto;
+    background: linear-gradient(135deg, #ffffff, #f3f4f6);
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
     padding: 20px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-#chatbot-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.5s ease-out;
 }
 
 /* Chatbox */
 #chatbox {
-    height: 400px;
+    flex: 1;
     overflow-y: auto;
-    border: 2px solid #ddd;
-    border-radius: 8px;
+    border: none;
+    border-radius: 10px;
     margin-bottom: 20px;
     padding: 15px;
-    background: #ffffff;
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
     scrollbar-width: thin;
-    scrollbar-color: #cccccc #f9f9f9;
+    scrollbar-color: #007bff #e3f2fd;
 }
 
 /* Scrollbar styling */
 #chatbox::-webkit-scrollbar {
-    width: 8px;
+    width: 10px;
 }
 #chatbox::-webkit-scrollbar-thumb {
-    background: #cccccc;
-    border-radius: 8px;
+    background: #007bff;
+    border-radius: 10px;
 }
 #chatbox::-webkit-scrollbar-thumb:hover {
-    background: #aaaaaa;
+    background: #0056b3;
 }
 #chatbox::-webkit-scrollbar-track {
-    background: #f9f9f9;
+    background: #f8f9fa;
 }
 
 /* Chat Messages */
 #chat-messages {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .message {
     margin-bottom: 10px;
-    padding: 10px 15px;
-    border-radius: 12px;
-    font-size: 15px;
+    padding: 12px 15px;
+    border-radius: 20px;
+    font-size: 14px;
     animation: fadeIn 0.3s ease-in-out;
     max-width: 75%;
     word-wrap: break-word;
+    line-height: 1.4;
 }
 
 .message.user {
     align-self: flex-end;
-    background: linear-gradient(135deg, #d4edda, #c3e6cb);
-    color: #155724;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .message.bot {
     align-self: flex-start;
-    background: linear-gradient(135deg, #e9ecef, #dee2e6);
-    color: #495057;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #eceff1, #cfd8dc);
+    color: #37474f;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Fade-in animation for messages */
@@ -107,11 +110,12 @@ body {
 
 #user-input {
     flex: 1;
-    padding: 12px;
+    padding: 12px 15px;
     font-size: 16px;
     border: 2px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
+    border-radius: 12px;
+    background-color: #ffffff;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -126,7 +130,7 @@ button {
     padding: 12px 20px;
     font-size: 16px;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     background: linear-gradient(135deg, #007bff, #0056b3);
     color: #fff;
     cursor: pointer;
@@ -145,25 +149,32 @@ button:active {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
+/* Desktop Responsiveness */
+@media (min-width: 1024px) {
     #chatbot-container {
-        margin: 20px auto;
-        padding: 15px;
-    }
-
-    #chatbox {
-        height: 300px;
-        margin-bottom: 15px;
+        width: 50%;
+        padding: 30px;
     }
 
     button {
-        padding: 10px 15px;
-        font-size: 14px;
+        font-size: 18px;
+        padding: 14px 25px;
     }
 
     #user-input {
-        font-size: 14px;
-        padding: 10px;
+        font-size: 18px;
+        padding: 14px 20px;
+    }
+}
+
+/* Slide-in animation for the container */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
