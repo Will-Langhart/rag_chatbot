@@ -52,7 +52,7 @@ def chat():
             raise ValueError("Pinecone client is not initialized. Check API key and configuration.")
 
         # List all indexes using the client
-        existing_indexes = pc.list_indexes()
+        existing_indexes = [index.name for index in pc.list_indexes()]
         if "rag-chatbot-index" not in existing_indexes:
             pc.create_index(
                 name="rag-chatbot-index",
