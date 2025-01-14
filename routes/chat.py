@@ -24,7 +24,7 @@ except Exception as e:
 # Initialize Blueprint
 chat_bp = Blueprint('chat', __name__)
 
-# Create a Pinecone client
+# Create and initialize a Pinecone client
 try:
     pc = Pinecone(
         api_key=os.getenv("PINECONE_API_KEY")
@@ -51,8 +51,8 @@ def chat():
         if not pc:
             raise ValueError("Pinecone client is not initialized. Check API key and configuration.")
 
-        # List all indexes
-        existing_indexes = pc.list_indexes().names()
+        # List all indexes using the client
+        existing_indexes = pc.list_indexes()
         if "rag-chatbot-index" not in existing_indexes:
             pc.create_index(
                 name="rag-chatbot-index",
