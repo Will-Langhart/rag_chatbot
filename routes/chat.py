@@ -43,7 +43,7 @@ def chat():
         index_name = "rag-chatbot-index-final"
 
         # List existing indexes
-        existing_indexes = pc.list_indexes()
+        existing_indexes = [index["name"] for index in pc.list_indexes()]
         current_app.logger.debug(f"Existing Pinecone indexes: {existing_indexes}")
 
         # Create index if it doesn't exist
@@ -62,20 +62,16 @@ def chat():
         else:
             current_app.logger.info(f"Pinecone index '{index_name}' already exists.")
 
-        # Access the index directly via Pinecone client
-        index = pc.index(index_name)
+        # Access the index using the Pinecone client
+        index = pc.Index(index_name)
         current_app.logger.info(f"Pinecone index '{index_name}' accessed successfully.")
 
         # Initialize OpenAI embeddings
         embedding = OpenAIEmbeddings(api_key=os.getenv("OPENAI_API_KEY"))
         current_app.logger.info("OpenAI Embeddings initialized successfully.")
 
-        # Use OpenAI directly for query processing (avoiding LangChainPinecone issues)
+        # Simulate RetrievalQA and OpenAI response
         llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4")
-
-        # Manually retrieve data and simulate RetrievalQA behavior
-        # Placeholder for actual retrieval logic
-        # Add your embedding-based query retrieval here as needed
         raw_response = f"Simulated response for message: '{message}'"
         current_app.logger.info(f"Raw response: {raw_response}")
 
