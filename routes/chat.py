@@ -51,25 +51,22 @@ def chat():
         if not pc:
             raise ValueError("Pinecone client is not initialized. Check API key and configuration.")
 
-        # List all indexes using the client
+        # Correctly list existing indexes
         existing_indexes = pc.list_indexes()
+        current_app.logger.debug(f"Existing Pinecone indexes: {existing_indexes}")
+
         if "rag-chatbot-index" not in existing_indexes:
-            try:
-                pc.create_index(
-                    name="rag-chatbot-index",
-                    dimension=1536,  # Adjust based on your embedding size
-                    metric="cosine",
-                    spec=ServerlessSpec(
-                        cloud="aws",  # AWS setup
-                        region=os.getenv("PINECONE_REGION", "us-east-1")
-                    ),
-                )
-                current_app.logger.info("Created Pinecone index 'rag-chatbot-index'.")
-            except Exception as e:
-                if "ALREADY_EXISTS" in str(e):
-                    current_app.logger.warning("Pinecone index 'rag-chatbot-index' already exists.")
-                else:
-                    raise e
+            current_app.logger.info("Creating Pinecone index 'rag-chatbot-index'.")
+            pc.create_index(
+                name="rag-chatbot-index",
+                dimension=1536,  # Adjust based on your embedding size
+                metric="cosine",
+                spec=ServerlessSpec(
+                    cloud="aws",  # AWS setup
+                    region=os.getenv("PINECONE_REGION", "us-east-1")
+                ),
+            )
+            current_app.logger.info("Pinecone index 'rag-chatbot-index' created.")
         else:
             current_app.logger.info("Pinecone index 'rag-chatbot-index' already exists.")
 
