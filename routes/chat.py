@@ -15,6 +15,7 @@ chat_bp = Blueprint('chat', __name__)
 
 @chat_bp.route('/chat', methods=['POST'])
 def chat():
+    # Extract JSON payload
     data = request.json
     user_id = data.get('user_id')
     message = data.get('message')
@@ -23,24 +24,36 @@ def chat():
         return jsonify({"error": "User ID and message are required"}), 400
 
     try:
-        # Retrieve relevant context from Pinecone
-        pinecone.init(api_key=os.getenv("PINECONE_API_KEY"), environment=os.getenv("PINECONE_ENVIRONMENT"))
+        # Initialize Pinecone
+        pinecone.init(
+            api_key=os.getenv("PINECONE_API_KEY"),
+            environment=os.getenv("PINECONE_ENVIRONMENT")
+        )
         index = Pinecone("rag-chatbot-index")
         retriever = index.as_retriever()
 
-        # Create the RAG chain
+        # Create the RAG chain with OpenAI LLM
         llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4")
         rag_chain = RetrievalQA(llm=llm, retriever=retriever)
-        response = rag_chain.run(message)
 
-        # Use the rephrase model from LangChainHub
-        rephrased_response = rephrase_model.run({"text": response})
+        # Run the RAG chain to get the AI response
+        raw_response = rag_chain.run(message)
 
-        # Save chat to PostgreSQL
+        # Optionally rephrase the response using LangChainHub model
+        rephrased_response = rephrase_model.run({"text": raw_response})
+
+        # Save the chat to the database
         new_chat = Chat(user_id=user_id, message=message, response=rephrased_response)
         db.session.add(new_chat)
         db.session.commit()
 
+        # Return the chatbot's response
         return jsonify({"response": rephrased_response})
+
+    except pinecone.exceptions.PineconeException as pe:
+        # Handle Pinecone-specific errors
+        return jsonify({"error": f"Pinecone error: {str(pe)}"}), 500
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        # Handle general errors
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
