@@ -55,8 +55,8 @@ def chat():
         existing_indexes = [index["name"] for index in pc.list_indexes()]
         current_app.logger.debug(f"Existing Pinecone indexes: {existing_indexes}")
 
-        # Change index name to something unique
-        index_name = "rag-chatbot-index-v2"
+        # Use a new index name to ensure no conflicts
+        index_name = "rag-chatbot-index-v3"
 
         if index_name not in existing_indexes:
             current_app.logger.info(f"Creating Pinecone index '{index_name}'.")
