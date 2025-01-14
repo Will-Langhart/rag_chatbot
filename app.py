@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from dotenv import load_dotenv
@@ -21,6 +21,21 @@ db = SQLAlchemy(app)
 
 # Initialize Flask-Migrate
 migrate = Migrate(app, db)
+
+# Define the root route
+@app.route('/')
+def index():
+    return jsonify({
+        "message": "Welcome to the RAG Chatbot API",
+        "endpoints": {
+            "chat": "/api/chat",
+            "embedding": "/api/embedding/embed"
+        }
+    })
+
+# Register blueprints
+app.register_blueprint(chat_bp, url_prefix='/api/chat')
+app.register_blueprint(embedding_bp, url_prefix='/api/embedding')
 
 if __name__ == "__main__":
     app.run(debug=True)
