@@ -52,7 +52,8 @@ def chat():
             raise ValueError("Pinecone instance is not initialized. Check API key and configuration.")
 
         # Ensure the index exists
-        if "rag-chatbot-index" not in pc.list_indexes().names():
+        existing_indexes = pc.list_indexes()
+        if "rag-chatbot-index" not in existing_indexes.names():
             pc.create_index(
                 name="rag-chatbot-index",
                 dimension=1536,  # Adjust based on your embedding size
