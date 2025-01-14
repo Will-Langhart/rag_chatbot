@@ -52,13 +52,16 @@ def chat():
             raise ValueError("Pinecone client is not initialized. Check API key and configuration.")
 
         # Correctly list existing indexes
-        existing_indexes = pc.list_indexes()
+        existing_indexes = [index["name"] for index in pc.list_indexes()]
         current_app.logger.debug(f"Existing Pinecone indexes: {existing_indexes}")
 
-        if "rag-chatbot-index" not in existing_indexes:
-            current_app.logger.info("Creating Pinecone index 'rag-chatbot-index'.")
+        # Change index name to something unique
+        index_name = "rag-chatbot-index-v2"
+
+        if index_name not in existing_indexes:
+            current_app.logger.info(f"Creating Pinecone index '{index_name}'.")
             pc.create_index(
-                name="rag-chatbot-index",
+                name=index_name,
                 dimension=1536,  # Adjust based on your embedding size
                 metric="cosine",
                 spec=ServerlessSpec(
@@ -66,9 +69,9 @@ def chat():
                     region=os.getenv("PINECONE_REGION", "us-east-1")
                 ),
             )
-            current_app.logger.info("Pinecone index 'rag-chatbot-index' created.")
+            current_app.logger.info(f"Pinecone index '{index_name}' created.")
         else:
-            current_app.logger.info("Pinecone index 'rag-chatbot-index' already exists.")
+            current_app.logger.info(f"Pinecone index '{index_name}' already exists.")
 
         # Initialize OpenAI embeddings
         embedding = OpenAIEmbeddings(api_key=os.getenv("OPENAI_API_KEY"))
@@ -76,7 +79,7 @@ def chat():
 
         # Access the index using LangChain's Pinecone integration
         retriever = LangChainPinecone.from_existing_index(
-            index_name="rag-chatbot-index",
+            index_name=index_name,
             embedding=embedding
         )
         current_app.logger.info("Pinecone index accessed and retriever set up.")
