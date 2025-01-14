@@ -4,6 +4,7 @@ from langchain.chains import RetrievalQA
 from langchain.vectorstores import Pinecone as LangChainPinecone
 from langchain.llms import OpenAI
 from langchain.hub import pull
+from langchain.embeddings.openai import OpenAIEmbeddings
 from pinecone import Pinecone, ServerlessSpec
 import os
 import logging
@@ -63,9 +64,14 @@ def chat():
             )
             current_app.logger.info("Created Pinecone index 'rag-chatbot-index'.")
 
+        # Initialize OpenAI embeddings
+        embedding = OpenAIEmbeddings(api_key=os.getenv("OPENAI_API_KEY"))
+        current_app.logger.info("OpenAI Embeddings initialized successfully.")
+
         # Access the index using LangChain's Pinecone integration
         retriever = LangChainPinecone.from_existing_index(
-            index_name="rag-chatbot-index"
+            index_name="rag-chatbot-index",
+            embedding=embedding
         )
         current_app.logger.info("Pinecone index accessed and retriever set up.")
 
