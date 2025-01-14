@@ -4,8 +4,8 @@ from langchain.chains import RetrievalQA
 from langchain.vectorstores import Pinecone
 from langchain.llms import OpenAI
 from langchain.hub import pull
+from pinecone import Pinecone, ServerlessSpec
 import os
-import pinecone
 import logging
 
 # Set up a standalone logger for initialization outside the Flask app context
@@ -22,6 +22,11 @@ except Exception as e:
 # Initialize Blueprint
 chat_bp = Blueprint('chat', __name__)
 
+# Create a Pinecone instance
+pc = Pinecone(
+    api_key=os.getenv("PINECONE_API_KEY")
+)
+
 @chat_bp.route('/', methods=['POST'])
 def chat():
     data = request.json
@@ -35,14 +40,23 @@ def chat():
         return jsonify({"error": "User ID and message are required"}), 400
 
     try:
-        # Initialize Pinecone
-        pinecone.init(
-            api_key=os.getenv("PINECONE_API_KEY"),
-            environment=os.getenv("PINECONE_ENVIRONMENT")
-        )
-        index = Pinecone("rag-chatbot-index")
+        # Ensure the index exists
+        if "rag-chatbot-index" not in pc.list_indexes().names():
+            pc.create_index(
+                name="rag-chatbot-index",
+                dimension=1536,  # Adjust based on your embedding size
+                metric="cosine",
+                spec=ServerlessSpec(
+                    cloud="aws",  # Update based on your Pinecone setup
+                    region=os.getenv("PINECONE_REGION", "us-west-1")
+                ),
+            )
+            current_app.logger.info("Created Pinecone index 'rag-chatbot-index'.")
+
+        # Access the index
+        index = pc.Index("rag-chatbot-index")
         retriever = index.as_retriever()
-        current_app.logger.info("Pinecone initialized and retriever set up.")
+        current_app.logger.info("Pinecone index accessed and retriever set up.")
 
         # Create the RAG chain with OpenAI LLM
         llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4")
@@ -63,10 +77,6 @@ def chat():
         current_app.logger.info("Chat saved to database successfully.")
 
         return jsonify({"response": rephrased_response})
-
-    except pinecone.exceptions.PineconeException as pe:
-        current_app.logger.error(f"Pinecone error: {pe}")
-        return jsonify({"error": f"Pinecone error: {str(pe)}"}), 500
 
     except Exception as e:
         current_app.logger.error(f"An unexpected error occurred: {e}")
