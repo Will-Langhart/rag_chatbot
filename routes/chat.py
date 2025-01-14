@@ -6,14 +6,18 @@ from langchain.llms import OpenAI
 from langchain.hub import pull
 import os
 import pinecone
+import logging
 
-# Load LangChain model using LangChainHub and API key
+# Set up a standalone logger for initialization outside the Flask app context
+module_logger = logging.getLogger("chat_module")
+module_logger.setLevel(logging.DEBUG)
+
 try:
     rephrase_model = pull("langchain-ai/chat-langchain-rephrase", api_key=os.getenv("LANGCHAIN_API_KEY"))
-    current_app.logger.info("LangChain rephrase model loaded successfully.")
+    module_logger.info("LangChain rephrase model loaded successfully.")
 except Exception as e:
     rephrase_model = None
-    current_app.logger.error(f"Failed to load LangChain rephrase model: {e}")
+    module_logger.error(f"Failed to load LangChain rephrase model: {e}")
 
 # Initialize Blueprint
 chat_bp = Blueprint('chat', __name__)
