@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from models import db, Chat
 from langchain.chains import RetrievalQA
-from langchain.vectorstores import Pinecone
+from langchain.vectorstores import Pinecone as LangChainPinecone
 from langchain.llms import OpenAI
 from langchain.hub import pull
 from pinecone import Pinecone, ServerlessSpec
@@ -63,9 +63,12 @@ def chat():
             )
             current_app.logger.info("Created Pinecone index 'rag-chatbot-index'.")
 
-        # Access the index
-        index = pc.Index("rag-chatbot-index")
-        retriever = index.as_retriever()
+        # Access the index using LangChain's Pinecone integration
+        retriever = LangChainPinecone.from_existing_index(
+            index_name="rag-chatbot-index",
+            api_key=os.getenv("PINECONE_API_KEY"),
+            environment=os.getenv("PINECONE_REGION")
+        )
         current_app.logger.info("Pinecone index accessed and retriever set up.")
 
         # Create the RAG chain with OpenAI LLM
