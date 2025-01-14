@@ -64,6 +64,8 @@ def chat():
                 ),
             )
             current_app.logger.info("Created Pinecone index 'rag-chatbot-index'.")
+        else:
+            current_app.logger.info("Pinecone index 'rag-chatbot-index' already exists.")
 
         # Initialize OpenAI embeddings
         embedding = OpenAIEmbeddings(api_key=os.getenv("OPENAI_API_KEY"))
