@@ -16,13 +16,16 @@ chatForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const message = userInput.value.trim();
 
-    if (!message) return;
+    if (!message) {
+        appendMessage('Please enter a message.', 'bot');
+        return;
+    }
 
     // Append user message to chat
     appendMessage(message, 'user');
     userInput.value = '';
 
-    // Send message to the backend
+    // Send the message to the backend
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
@@ -37,12 +40,19 @@ chatForm.addEventListener('submit', async (e) => {
 
         if (response.ok) {
             const data = await response.json();
-            appendMessage(data.response, 'bot');
+
+            // Check if response contains LangChain or ChatGPT results
+            if (data.response) {
+                appendMessage(data.response, 'bot');
+            } else {
+                appendMessage('The chatbot did not provide a response.', 'bot');
+            }
         } else {
             appendMessage('Error: Unable to connect to the chatbot.', 'bot');
+            console.error('Backend returned error:', response.status, response.statusText);
         }
     } catch (error) {
-        appendMessage('Error: Something went wrong.', 'bot');
-        console.error('Chat error:', error);
+        appendMessage('Error: Something went wrong while communicating with the chatbot.', 'bot');
+        console.error('Fetch error:', error);
     }
 });
