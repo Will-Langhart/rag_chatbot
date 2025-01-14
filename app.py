@@ -23,15 +23,11 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # Define the root route
+from flask import render_template
+
 @app.route('/')
 def index():
-    return jsonify({
-        "message": "Welcome to the RAG Chatbot API",
-        "endpoints": {
-            "chat": "/api/chat",
-            "embedding": "/api/embedding/embed"
-        }
-    })
+    return render_template('index.html')
 
 # Register blueprints
 app.register_blueprint(chat_bp, url_prefix='/api/chat')
