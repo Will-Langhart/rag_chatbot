@@ -23,7 +23,7 @@ except Exception as e:
 # Initialize Blueprint
 chat_bp = Blueprint('chat', __name__)
 
-# Create a Pinecone instance
+# Create and initialize a Pinecone instance
 try:
     pc = Pinecone(
         api_key=os.getenv("PINECONE_API_KEY")
@@ -65,9 +65,7 @@ def chat():
 
         # Access the index using LangChain's Pinecone integration
         retriever = LangChainPinecone.from_existing_index(
-            index_name="rag-chatbot-index",
-            api_key=os.getenv("PINECONE_API_KEY"),
-            environment=os.getenv("PINECONE_REGION")
+            index_name="rag-chatbot-index"
         )
         current_app.logger.info("Pinecone index accessed and retriever set up.")
 
