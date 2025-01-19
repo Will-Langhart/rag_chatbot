@@ -11,9 +11,6 @@ from routes.embeddings import embedding_bp
 # Load environment variables
 load_dotenv()
 
-# Retrieve the LangChain API Key
-langchain_api_key = os.getenv("LANGCHAIN_API_KEY")
-
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
@@ -33,8 +30,8 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 app.logger.addHandler(handler)
 
-# Verify database connectivity on startup
-@app.before_first_request
+# Verify database connectivity before each request
+@app.before_request
 def verify_database_connection():
     try:
         db.session.execute("SELECT 1")  # Simple query to verify connection
