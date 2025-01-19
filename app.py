@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from sqlalchemy import text  # Import for raw SQL queries
+from sqlalchemy import text
 from dotenv import load_dotenv
 import os
 import logging
@@ -32,8 +32,8 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 app.logger.addHandler(handler)
 
-# Verify database connectivity on startup
-@app.before_first_request
+# Verify database connectivity before each request
+@app.before_request
 def verify_database_connection():
     try:
         with db.engine.connect() as connection:
