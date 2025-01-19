@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from dotenv import load_dotenv
 import os
+from app import db
 import logging
 from logging.handlers import RotatingFileHandler
 from routes.chat import chat_bp
