@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from sqlalchemy import text  # Import for raw SQL queries
 from dotenv import load_dotenv
 import os
 import logging
@@ -17,7 +18,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize the database
-db = SQLAlchemy(app)
+db = SQLAlchemy()
+db.init_app(app)
 
 # Initialize Flask-Migrate
 migrate = Migrate(app, db)
@@ -30,11 +32,12 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 app.logger.addHandler(handler)
 
-# Verify database connectivity before each request
-@app.before_request
+# Verify database connectivity on startup
+@app.before_first_request
 def verify_database_connection():
     try:
-        db.session.execute("SELECT 1")  # Simple query to verify connection
+        with db.engine.connect() as connection:
+            connection.execute(text("SELECT 1"))  # Use the text() function
         app.logger.info("Database connection established successfully.")
     except Exception as e:
         app.logger.critical(f"Database connection failed: {e}")
