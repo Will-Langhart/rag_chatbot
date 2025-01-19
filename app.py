@@ -32,7 +32,7 @@ handler.setFormatter(formatter)
 app.logger.addHandler(handler)
 
 # Verify database connectivity on startup
-@app.before_first_request
+@app.before_request
 def verify_database_connection():
     try:
         with app.app_context():
