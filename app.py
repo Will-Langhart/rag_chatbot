@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from dotenv import load_dotenv
 import os
-from app import db
 import logging
 from logging.handlers import RotatingFileHandler
 from routes.chat import chat_bp
@@ -34,6 +33,15 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 app.logger.addHandler(handler)
 
+# Verify database connectivity on startup
+@app.before_first_request
+def verify_database_connection():
+    try:
+        db.session.execute("SELECT 1")  # Simple query to verify connection
+        app.logger.info("Database connection established successfully.")
+    except Exception as e:
+        app.logger.critical(f"Database connection failed: {e}")
+
 # Define the root route
 @app.route('/')
 def index():
@@ -52,7 +60,7 @@ def not_found(error):
 # Error handler for 500 errors
 @app.errorhandler(500)
 def internal_error(error):
-    app.logger.error(f"500 Error: {error}")
+    app.logger.error(f"500 Error: {error}", exc_info=True)
     return jsonify({"error": "An internal server error occurred"}), 500
 
 # Run the app
