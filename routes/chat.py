@@ -75,13 +75,18 @@ def chat():
         raw_response = f"Simulated response for message: '{message}'"
         current_app.logger.info(f"Raw response: {raw_response}")
 
-        # Save the chat to the database
-        new_chat = Chat(user_id=user_id, message=message, response=raw_response)
-        db.session.add(new_chat)
-        db.session.commit()
-        current_app.logger.info("Chat saved to database successfully.")
+        # Save the chat to the database within app context
+        with current_app.app_context():
+            new_chat = Chat(user_id=user_id, message=message, response=raw_response)
+            db.session.add(new_chat)
+            db.session.commit()
+            current_app.logger.info("Chat saved to database successfully.")
 
         return jsonify({"response": raw_response})
+
+    except ValueError as ve:
+        current_app.logger.error(f"Configuration error: {ve}")
+        return jsonify({"error": f"Configuration error: {str(ve)}"}), 500
 
     except Exception as e:
         current_app.logger.error(f"An unexpected error occurred: {e}")
