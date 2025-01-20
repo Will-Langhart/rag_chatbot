@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify, current_app
-from models import db, Chat
+from models import db, Chat, User
 from langchain.chains import RetrievalQA
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.llms import OpenAI
+from langchain.vectorstores import Pinecone as LangChainPinecone
 from pinecone import Pinecone, ServerlessSpec
 import os
 import logging
@@ -39,6 +40,12 @@ def chat():
         if not pc:
             raise ValueError("Pinecone client is not initialized. Check API key and configuration.")
 
+        # Ensure user exists
+        user = User.query.get(user_id)
+        if not user:
+            current_app.logger.warning("Invalid user ID.")
+            return jsonify({"error": "Invalid user ID."}), 400
+
         # Use a fixed index name
         index_name = "rag-chatbot-index-final"
 
@@ -62,27 +69,26 @@ def chat():
         else:
             current_app.logger.info(f"Pinecone index '{index_name}' already exists.")
 
-        # Access the index using the Pinecone client
-        index = pc.Index(index_name)
+        # Access the index using LangChain's Pinecone integration
+        retriever = LangChainPinecone.from_existing_index(
+            index_name=index_name,
+            embedding=OpenAIEmbeddings(api_key=os.getenv("OPENAI_API_KEY"))
+        )
         current_app.logger.info(f"Pinecone index '{index_name}' accessed successfully.")
 
-        # Initialize OpenAI embeddings
-        embedding = OpenAIEmbeddings(api_key=os.getenv("OPENAI_API_KEY"))
-        current_app.logger.info("OpenAI Embeddings initialized successfully.")
-
-        # Simulate RetrievalQA and OpenAI response
+        # Create RetrievalQA with OpenAI LLM
         llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4")
-        raw_response = f"Simulated response for message: '{message}'"
-        current_app.logger.info(f"Raw response: {raw_response}")
+        rag_chain = RetrievalQA(llm=llm, retriever=retriever)
+        response = rag_chain.run(message)
+        current_app.logger.info(f"Generated response: {response}")
 
-        # Save the chat to the database within app context
-        with current_app.app_context():
-            new_chat = Chat(user_id=user_id, message=message, response=raw_response)
-            db.session.add(new_chat)
-            db.session.commit()
-            current_app.logger.info("Chat saved to database successfully.")
+        # Save the chat to the database
+        new_chat = Chat(user_id=user_id, message=message, response=response)
+        db.session.add(new_chat)
+        db.session.commit()
+        current_app.logger.info("Chat saved to database successfully.")
 
-        return jsonify({"response": raw_response})
+        return jsonify({"response": response})
 
     except ValueError as ve:
         current_app.logger.error(f"Configuration error: {ve}")
