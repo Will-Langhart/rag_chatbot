@@ -58,10 +58,10 @@ def chat():
         existing_indexes = pc.list_indexes()
         current_app.logger.debug(f"Existing Pinecone indexes: {existing_indexes}")
 
-        # Skip creation if index already exists
         if index_name in existing_indexes:
             current_app.logger.info(f"Pinecone index '{index_name}' already exists.")
         else:
+            # Create the index if it doesn't exist
             current_app.logger.info(f"Creating Pinecone index '{index_name}'.")
             pc.create_index(
                 name=index_name,
