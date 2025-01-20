@@ -97,5 +97,5 @@ def chat():
         return jsonify({"error": f"Configuration error: {str(ve)}"}), 500
 
     except Exception as e:
-        current_app.logger.error(f"An unexpected error occurred: {e}")
+        current_app.logger.error(f"An unexpected error occurred: {e}", exc_info=True)
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
