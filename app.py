@@ -8,6 +8,7 @@ from logging.handlers import RotatingFileHandler
 from models import db
 from routes.chat import chat_bp
 from routes.embeddings import embedding_bp
+from sqlalchemy.sql import text
 
 # Load environment variables
 load_dotenv()
@@ -35,9 +36,8 @@ app.logger.addHandler(handler)
 @app.before_request
 def verify_database_connection():
     try:
-        with app.app_context():
-            db.session.execute("SELECT 1")  # Simple query to verify connection
-            app.logger.info("Database connection established successfully.")
+        db.session.execute(text("SELECT 1"))  # Use text() for raw SQL queries
+        app.logger.info("Database connection established successfully.")
     except Exception as e:
         app.logger.critical(f"Database connection failed: {e}")
 
