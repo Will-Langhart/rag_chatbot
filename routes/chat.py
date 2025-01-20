@@ -48,14 +48,14 @@ def chat():
         # Ensure user exists
         user = User.query.get(user_id)
         if not user:
-            current_app.logger.warning("Invalid user ID.")
+            current_app.logger.warning(f"Invalid user ID: {user_id}")
             return jsonify({"error": "Invalid user ID."}), 400
 
         # Use a fixed index name
         index_name = "rag-chatbot-index-final"
 
         # List existing indexes using the Pinecone client
-        existing_indexes = [index["name"] for index in pc.list_indexes()]
+        existing_indexes = pc.list_indexes()
         current_app.logger.debug(f"Existing Pinecone indexes: {existing_indexes}")
 
         # Skip creation if index already exists
