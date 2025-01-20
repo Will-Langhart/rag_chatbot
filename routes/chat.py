@@ -54,26 +54,28 @@ def chat():
         # Use a fixed index name
         index_name = "rag-chatbot-index-final"
 
-        # List existing indexes using the Pinecone client
+        # Check if the index exists using the Pinecone client
         existing_indexes = pc.list_indexes()
         current_app.logger.debug(f"Existing Pinecone indexes: {existing_indexes}")
 
-        # Check if the index exists and avoid re-creation
         if index_name in existing_indexes:
-            current_app.logger.info(f"Pinecone index '{index_name}' already exists.")
+            current_app.logger.info(f"Pinecone index '{index_name}' already exists. Skipping creation.")
         else:
-            # Create the index if it doesn't exist
             current_app.logger.info(f"Creating Pinecone index '{index_name}'.")
-            pc.create_index(
-                name=index_name,
-                dimension=1536,  # Adjust based on your embedding size
-                metric="cosine",
-                spec=ServerlessSpec(
-                    cloud="aws",  # AWS setup
-                    region=os.getenv("PINECONE_REGION", "us-east-1")
-                ),
-            )
-            current_app.logger.info(f"Pinecone index '{index_name}' created.")
+            try:
+                pc.create_index(
+                    name=index_name,
+                    dimension=1536,  # Adjust based on your embedding size
+                    metric="cosine",
+                    spec=ServerlessSpec(
+                        cloud="aws",  # AWS setup
+                        region=os.getenv("PINECONE_REGION", "us-east-1")
+                    ),
+                )
+                current_app.logger.info(f"Pinecone index '{index_name}' created successfully.")
+            except Exception as create_error:
+                current_app.logger.error(f"Error creating Pinecone index '{index_name}': {create_error}")
+                raise
 
         # Access the index using LangChain's Pinecone integration
         retriever = LangChainPinecone.from_existing_index(
