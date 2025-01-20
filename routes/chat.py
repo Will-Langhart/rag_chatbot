@@ -4,8 +4,8 @@ from langchain.chains import RetrievalQA
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.llms import OpenAI
 from langchain.vectorstores import Pinecone as LangChainPinecone
-from pinecone import Pinecone, ServerlessSpec
 from sqlalchemy.sql import text
+from pinecone import Pinecone, ServerlessSpec
 import os
 import logging
 
@@ -55,7 +55,7 @@ def chat():
         index_name = "rag-chatbot-index-final"
 
         # List existing indexes using the Pinecone client
-        existing_indexes = [index.name for index in pc.list_indexes()]
+        existing_indexes = pc.list_indexes()
         current_app.logger.debug(f"Existing Pinecone indexes: {existing_indexes}")
 
         # Create index if it doesn't exist
