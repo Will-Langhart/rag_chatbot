@@ -5,6 +5,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.llms import OpenAI
 from langchain.vectorstores import Pinecone as LangChainPinecone
 from pinecone import Pinecone, ServerlessSpec
+from sqlalchemy.sql import text
 import os
 import logging
 
@@ -36,6 +37,10 @@ def chat():
         return jsonify({"error": "User ID and message are required"}), 400
 
     try:
+        # Verify database connection
+        db.session.execute(text("SELECT 1"))
+        current_app.logger.info("Database connection verified.")
+
         # Ensure Pinecone client is initialized
         if not pc:
             raise ValueError("Pinecone client is not initialized. Check API key and configuration.")
@@ -49,8 +54,8 @@ def chat():
         # Use a fixed index name
         index_name = "rag-chatbot-index-final"
 
-        # List existing indexes
-        existing_indexes = [index["name"] for index in pc.list_indexes()]
+        # List existing indexes using the Pinecone client
+        existing_indexes = [index.name for index in pc.list_indexes()]
         current_app.logger.debug(f"Existing Pinecone indexes: {existing_indexes}")
 
         # Create index if it doesn't exist
