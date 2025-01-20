@@ -11,21 +11,8 @@ function appendMessage(content, sender) {
     chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
 }
 
-// Event listener for form submission
-chatForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const message = userInput.value.trim();
-
-    if (!message) {
-        appendMessage('Please enter a message.', 'bot');
-        return;
-    }
-
-    // Append user message to chat
-    appendMessage(message, 'user');
-    userInput.value = '';
-
-    // Send the message to the backend
+// Function to handle backend responses and errors
+async function sendMessageToBackend(message) {
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
@@ -40,12 +27,11 @@ chatForm.addEventListener('submit', async (e) => {
 
         if (response.ok) {
             const data = await response.json();
-
-            // Check if response contains LangChain or ChatGPT results
             if (data.response) {
                 appendMessage(data.response, 'bot');
             } else {
                 appendMessage('The chatbot did not provide a response.', 'bot');
+                console.error('Unexpected response format:', data);
             }
         } else {
             appendMessage('Error: Unable to connect to the chatbot.', 'bot');
@@ -55,4 +41,22 @@ chatForm.addEventListener('submit', async (e) => {
         appendMessage('Error: Something went wrong while communicating with the chatbot.', 'bot');
         console.error('Fetch error:', error);
     }
+}
+
+// Event listener for form submission
+chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const message = userInput.value.trim();
+
+    if (!message) {
+        appendMessage('Please enter a message.', 'bot');
+        return;
+    }
+
+    // Append user message to chat and clear input
+    appendMessage(message, 'user');
+    userInput.value = '';
+
+    // Send message to the backend
+    sendMessageToBackend(message);
 });
