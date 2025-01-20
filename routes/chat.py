@@ -55,12 +55,11 @@ def chat():
         index_name = "rag-chatbot-index-final"
 
         # Check if the index exists using the Pinecone client
-        existing_indexes = pc.list_indexes()
-        current_app.logger.debug(f"Existing Pinecone indexes: {existing_indexes}")
-
-        # Skip creation if index already exists
-        if index_name not in existing_indexes:
-            current_app.logger.info(f"Creating Pinecone index '{index_name}'.")
+        try:
+            index_info = pc.describe_index(index_name)
+            current_app.logger.info(f"Pinecone index '{index_name}' exists and is ready.")
+        except Exception as e:
+            current_app.logger.info(f"Pinecone index '{index_name}' does not exist. Creating it.")
             pc.create_index(
                 name=index_name,
                 dimension=1536,  # Adjust based on your embedding size
@@ -71,8 +70,6 @@ def chat():
                 ),
             )
             current_app.logger.info(f"Pinecone index '{index_name}' created successfully.")
-        else:
-            current_app.logger.info(f"Pinecone index '{index_name}' already exists. Skipping creation.")
 
         # Access the index using LangChain's Pinecone integration
         retriever = LangChainPinecone.from_existing_index(
