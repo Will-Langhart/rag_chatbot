@@ -58,24 +58,21 @@ def chat():
         existing_indexes = pc.list_indexes()
         current_app.logger.debug(f"Existing Pinecone indexes: {existing_indexes}")
 
-        if index_name in existing_indexes:
-            current_app.logger.info(f"Pinecone index '{index_name}' already exists. Skipping creation.")
-        else:
+        # Skip creation if index already exists
+        if index_name not in existing_indexes:
             current_app.logger.info(f"Creating Pinecone index '{index_name}'.")
-            try:
-                pc.create_index(
-                    name=index_name,
-                    dimension=1536,  # Adjust based on your embedding size
-                    metric="cosine",
-                    spec=ServerlessSpec(
-                        cloud="aws",  # AWS setup
-                        region=os.getenv("PINECONE_REGION", "us-east-1")
-                    ),
-                )
-                current_app.logger.info(f"Pinecone index '{index_name}' created successfully.")
-            except Exception as create_error:
-                current_app.logger.error(f"Error creating Pinecone index '{index_name}': {create_error}")
-                raise
+            pc.create_index(
+                name=index_name,
+                dimension=1536,  # Adjust based on your embedding size
+                metric="cosine",
+                spec=ServerlessSpec(
+                    cloud="aws",  # AWS setup
+                    region=os.getenv("PINECONE_REGION", "us-east-1")
+                ),
+            )
+            current_app.logger.info(f"Pinecone index '{index_name}' created successfully.")
+        else:
+            current_app.logger.info(f"Pinecone index '{index_name}' already exists. Skipping creation.")
 
         # Access the index using LangChain's Pinecone integration
         retriever = LangChainPinecone.from_existing_index(
