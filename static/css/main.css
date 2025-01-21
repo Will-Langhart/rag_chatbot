@@ -9,6 +9,7 @@
     --hover-highlight: rgba(0, 120, 212, 0.1);
     --button-hover: #0056b3;
     --button-active: #004a9e;
+    --focus-glow: rgba(0, 120, 212, 0.3);
 }
 
 /* General Reset */
@@ -31,21 +32,28 @@ body {
     flex-direction: column;
     overflow: hidden;
     background: var(--background-color);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    border-radius: 15px;
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    transition: box-shadow 0.3s ease;
+}
+
+#chatbot-container:hover {
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.2);
 }
 
 /* Header */
 h1 {
     text-align: center;
     padding: 15px 20px;
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: 700;
     color: white;
     background: linear-gradient(90deg, var(--primary-color), var(--button-hover));
     margin: 0;
     letter-spacing: 1px;
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Chatbox */
@@ -59,7 +67,7 @@ h1 {
 }
 
 #chatbox::-webkit-scrollbar {
-    width: 8px;
+    width: 10px;
 }
 
 #chatbox::-webkit-scrollbar-thumb {
@@ -79,16 +87,17 @@ h1 {
     border-radius: 15px;
     font-size: 16px;
     word-wrap: break-word;
-    line-height: 1.6;
+    line-height: 1.8;
     position: relative;
     animation: slideIn 0.3s ease;
-    box-shadow: 0 4px 10px var(--message-shadow);
-    transition: transform 0.2s ease, background-color 0.3s ease;
+    box-shadow: 0 4px 12px var(--message-shadow);
+    transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .message:hover {
     transform: translateY(-2px);
     background-color: var(--hover-highlight);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .message.user {
@@ -103,11 +112,22 @@ h1 {
     color: var(--text-color);
 }
 
+/* Typing Indicator */
 #typing-indicator {
     align-self: flex-start;
     font-style: italic;
     color: gray;
     padding: 5px 10px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 0.3;
+    }
 }
 
 /* Chat Form */
@@ -133,7 +153,7 @@ h1 {
 
 #user-input:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 5px var(--scrollbar-color);
+    box-shadow: 0 0 8px var(--focus-glow);
 }
 
 /* Button Styles */
@@ -153,11 +173,12 @@ button {
 button:hover {
     background: var(--button-hover);
     transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 button:active {
     background: var(--button-active);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Responsive Adjustments */
