@@ -133,10 +133,19 @@ body {
 
 /* Chat Form */
 #chat-form {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
     display: flex;
-    padding: 20px;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
     background: var(--input-bg);
-    border-top: 2px solid var(--primary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 #user-input {
@@ -144,7 +153,7 @@ body {
     padding: 15px 20px;
     font-size: 16px;
     border: 2px solid var(--input-border-color);
-    border-radius: 15px;
+    border-radius: 20px;
     background: var(--secondary-color);
     color: var(--text-color);
     outline: none;
@@ -158,12 +167,11 @@ body {
 
 /* Button Styles */
 button {
-    margin-left: 15px;
     padding: 15px 30px;
     font-size: 16px;
     font-weight: 600;
     border: none;
-    border-radius: 15px;
+    border-radius: 20px;
     background: var(--primary-color);
     color: white;
     cursor: pointer;
@@ -190,6 +198,10 @@ button:active {
 
     #chatbox {
         border-left: none;
+    }
+
+    #chat-form {
+        width: 95%;
     }
 
     #user-input {
