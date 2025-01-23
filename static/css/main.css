@@ -35,8 +35,8 @@ body {
 
 /* Message Thread (Left Panel) */
 #message-thread {
-    width: 25%;
-    min-width: 300px;
+    width: 30%; /* Increased width */
+    min-width: 350px; /* Slightly wider minimum width */
     background: var(--secondary-color);
     display: flex;
     flex-direction: column;
@@ -137,7 +137,7 @@ body {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    width: 80%;
+    width: 60%; /* Reduced width */
     display: flex;
     align-items: center;
     gap: 15px;
@@ -201,7 +201,7 @@ button:active {
     }
 
     #chat-form {
-        width: 95%;
+        width: 90%; /* Slightly increased for mobile */
     }
 
     #user-input {
