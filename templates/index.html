@@ -8,12 +8,11 @@
 </head>
 <body>
     <div id="chatbot-container">
-        <h1>RAG AI Chatbot</h1>
-        <div id="chatbox">
-            <div id="chat-messages"></div>
+        <div id="message-thread">
+            <div id="message-list"></div>
         </div>
         <form id="chat-form">
-            <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
+            <input type="text" id="user-input" placeholder="Type your message..." maxlength="250" />
             <button type="submit">Send</button>
         </form>
     </div>
